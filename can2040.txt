@@ -1,0 +1,4 @@
+To flash the RP2040
+cd klipper/
+make flash FLASH_DEVICE=2e8a:0003
+Find 
