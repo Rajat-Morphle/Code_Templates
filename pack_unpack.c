@@ -6,7 +6,7 @@ union FloatUnion {
 };
 
 int main() {
-    float number = 2.5;
+    float number = 210;
 
     union FloatUnion u;
     u.floatValue = number;
@@ -17,10 +17,10 @@ int main() {
     }
 
 // populating the bytes:
-    u.byte[0] = 0;
-    u.byte[1] = 0;
-    u.byte[2] = 32;
-    u.byte[3] = 64;
+    u.byte[0] = 0x00;
+    u.byte[1] = 0x00;
+    u.byte[2] = 0xB4;
+    u.byte[3] = 0x42;
 
     printf("\n %f \n", u.floatValue);
 
