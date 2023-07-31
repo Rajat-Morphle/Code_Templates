@@ -17,6 +17,7 @@ def home(id):
     print("home sent\n")
 
     while(1):
+        print("waiting for can message")
         response = bus.recv()
         if(response.data[2] == 2):
             break
@@ -56,12 +57,24 @@ def sync(check_id):
     print("Reached!\n")
     time.sleep(0.1)
 
+def speed(id, speed):
+    CAN_ID = (int(id) + 756)
+    SPEED = float(speed)
+    byte_arr = bytearray(struct.pack("f", float(SPEED)))
+    can_msg = can.Message(arbitration_id     = CAN_ID,
+                            data             = [0xF6, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
+                            is_extended_id   = False)
+    bus.send(can_msg)
+    bus.send(can_msg)
+
+    time.sleep(0.1)
+
 def open_gates():
     # opening all the gates
     moveto(1,130)
     moveto(2,0)
     moveto(3,0)
-    moveto(8,130)
+    moveto(8,180)
     sync(8)
 
 def close_gates():
@@ -82,20 +95,20 @@ def home_all():
     print("motor_3 homing.")
     home(3)
     
-    print("motor_4 homing.")
-    home(4)
-    moveto(4,40)
-    sync(4)
+    # print("motor_4 homing.")
+    # home(4)
+    # moveto(4,40)
+    # sync(4)
     
-    print("motor_5 homing.")
-    home(5)
-    moveto(5,40)
-    sync(5)
+    # print("motor_5 homing.")
+    # home(5)
+    # moveto(5,20)
+    # sync(5)
 
     print("motor_7 homing.")
     home(7)
-    moveto(7,40)
-    sync(7)
+    # moveto(7,26)
+    # sync(7)
     
     print("motor_8 homing.")
     home(8)
@@ -104,6 +117,7 @@ def home_all():
     home(9)
 
     print("moving cam...")
+    speed(9,180)
     moveto(9,80)
     sync(9)
 
@@ -126,28 +140,13 @@ def position_hanger1():
     sync(9)
     home(10)
     open_gates()
-    moveto(6,425)
+    moveto(6,893)
     sync(6)
     close_gates()
     moveto(10,-18)
     sync(10)
     moveto(9,160)
-    moveto(10,-25)
-    sync(10)
-
-def position_hanger2():
-    
-    moveto(9,80)
-    sync(9)
-    home(10)
-    open_gates()
-    moveto(6,895)
-    sync(6)
-    close_gates()
-    moveto(10,-15)
-    sync(10)
-    moveto(9,160)
-    moveto(10,-25)
+    moveto(10,-28)
     sync(10)
 
 def teardown():
@@ -160,9 +159,10 @@ def teardown():
 def transport():
     moveto(9,80)
     sync(9)
-    home(10)
+    moveto(10,-6)
+    sync(10)
     open_gates()
-    moveto(6,-280)
+    moveto(6,185)
     sync(6)
     close_gates()
 # ///////////////////////////////////////////////////////////////////////
@@ -172,14 +172,13 @@ def main():
 
     while(1):
 
-        # home_all()
+        home_all()
+        z = input()
         position_hanger1()
         y = input()
         teardown()
         x = input()
         transport()
-        # position_hanger2()
-        # teardown()
 
         break
 
