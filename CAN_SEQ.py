@@ -1,7 +1,7 @@
 import can
 import struct
 import time
-
+import math
 bus = can.interface.Bus(channel='can0', bustype='socketcan')
 
 # ==================================================== FUNCTION DEFINITIONS ================================================
@@ -11,7 +11,7 @@ def home(id):
     CAN_ID = (int(id) + 756) 
     can_msg = can.Message(arbitration_id     = CAN_ID,
                             data             = [0xF4, 0x01, 0X01, 0x00, 0x00, 0x00, 0x00, 0x00 ],
-                            is_extended_id   = False)
+                            extended_id   = False)
     bus.send(can_msg)
     print("home sent\n")
 
@@ -32,7 +32,7 @@ def moveto(id, pos):
     byte_arr = bytearray(struct.pack("f", float(POS)))
     can_msg = can.Message(arbitration_id     = CAN_ID,
                             data             = [0xF5, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
-                            is_extended_id   = False)
+                            extended_id   = False)
     bus.send(can_msg)
 
     time.sleep(0.1)
@@ -40,7 +40,7 @@ def moveto(id, pos):
 def sync(check_id):
     can_msg = can.Message(arbitration_id     = 0x001,
                             data             = [0x00, 0x00, 0X00, 0x0F],
-                            is_extended_id   = False)
+                            extended_id   = False)
     bus.send(can_msg)
     print(f"Start time: {str(time.time())}")
     print("sync sent")
@@ -61,7 +61,7 @@ def speed(id, speed):
     byte_arr = bytearray(struct.pack("f", float(SPEED)))
     can_msg = can.Message(arbitration_id     = CAN_ID,
                             data             = [0xF6, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
-                            is_extended_id   = False)
+                            extended_id   = False)
     bus.send(can_msg)
     bus.send(can_msg)
 
@@ -73,7 +73,7 @@ def accel(id, accel):
     byte_arr = bytearray(struct.pack("f", float(accel)))
     can_msg = can.Message(arbitration_id     = CAN_ID,
                             data             = [0xF7, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
-                            is_extended_id   = False)
+                            extended_id   = False)
     bus.send(can_msg)
     # bus.send(can_msg)
 
@@ -175,24 +175,14 @@ def transport():
     sync(6)
     close_gates()
 # ///////////////////////////////////////////////////////////////////////
+def interpolate(Vz, theta):
+    radians = math.radians(theta)
+    Vx = (math.tan(radians)*Vz)
+    return Vx
 
-def main():
-    # i = 14
-    # home(i)
-    # accel(i, 10000)
-    # # speed(i, 50)
-    # for j in range (650, 1000000, 10):
-    #     print("current acc.: ", j)
-    #     speed(i, j)
-    #     time.sleep(0.1)
-        
-    #     moveto(i, 150)
-    #     sync(i)
-    #     moveto(i, 60)
-    #     sync(i)
-
-    accel(11, 100)
-    accel(12, 3000)
+def pickup_gantry():
+    accel(11, 500)
+    accel(12, 500)
     accel(13, 3000)
     accel(14, 10000)
     accel(15, 10000)
@@ -205,6 +195,8 @@ def main():
     speed(15, 700)
     time.sleep(0.2)
 
+
+    # while 1:
     home(11)
     home(12)
     home(13)
@@ -212,7 +204,7 @@ def main():
     home(15)
     input()
 
-# ready for pickup
+    # ready for pickup
     print("ready for pickup.")
     moveto(11,130)
     moveto(12,60)
@@ -220,43 +212,48 @@ def main():
     moveto(15,60)
     sync(11)
 
-# dip 1
+    # dip 1
     input()
-    speed(12, 25)
+    speed(12, 45)
     print("dip")
-    moveto(12, 40)
     moveto(11, 170)
+    moveto(12, 30)
+    sync(11)
+    time.sleep(0.5)
+
+    # pick 1
+    input()
+    # speed(11, 60)
+    speed(12, 60)
+    speed(13, 50)
+    # accel(13, 10000)
+    print("pick")
+    
+    moveto(11, 165)
+    moveto(12, 15)
+    moveto(13, 20)
     sync(12)
+    time.sleep(1)
 
-# # pick 1
-#     input()
-#     speed(12, 60)
-#     speed(13, 15)
-#     accel(13, 10000)
-#     print("pick")
-    
-#     moveto(11, 150)
-#     moveto(12, 20)
-#     moveto(13, 20)
-#     sync(12)
+    # pull-out 1
+    input()
+    speed(12, 20)
+    accel(12, 1000)
+    print("pull-out 1")
+    moveto(11,110)
+    moveto(12,35)
+    sync(11)
+    time.sleep(2)
 
-# # pull-out 1
 
-#     moveto(11,110)
-#     moveto(12,35)
-#     sync(11)
-    
+def main():
 
-    # for i in range(2000, 100000, 5000):
-    #     accel(5, i)
-    #     print(f"{i}\n")
-        
-    #     moveto(5, 130)
-    #     sync(5)
-    #     print(f"End time: {str(time.time())}")
-    #     moveto(5, 90)
-    #     sync(5)        
+    # print(interpolate(2,30))
+
+    pickup_gantry()
+      
 
 
 if __name__ == "__main__":
     main()
+
