@@ -1,0 +1,25 @@
+PROGRAM WINDOW:
+    * Search and connect to the debug probe.
+    * Flash deployer: sudo openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 5000" -c "program deployer.elf verify reset exit"
+    * Flash Katapult: sudo openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 5000" -c "program katapult.elf verify reset exit"
+    * Put CAN up.
+    * read UUID: python3 flash_can.py -i can0 -q
+    * flash firmware: python3 flash_can.py -i can0 -f ../cmake-build-debug/src/picocontrol.bin -u xxxxxxxxxxxx
+
+default CAN ID should be 500
+send "save_default_data" command over CAN.
+
+QC:
+    home
+    move
+    brake
+
+Flash data setting:
+    entry fields
+    save flash data
+    read flash data
+
+
+
+
+

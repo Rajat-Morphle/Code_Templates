@@ -13,7 +13,6 @@ def home(id):
                             data             = [0xF4, 0x01, 0X01, 0x00, 0x00, 0x00, 0x00, 0x00 ],
                             is_extended_id   = False)
     bus.send(can_msg)
-    bus.send(can_msg)
     print("home sent\n")
 
     while(1):
@@ -35,7 +34,6 @@ def moveto(id, pos):
                             data             = [0xF5, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
                             is_extended_id   = False)
     bus.send(can_msg)
-    bus.send(can_msg)
 
     time.sleep(0.1)
 
@@ -44,7 +42,7 @@ def sync(check_id):
                             data             = [0x00, 0x00, 0X00, 0x0F],
                             is_extended_id   = False)
     bus.send(can_msg)
-    bus.send(can_msg)
+    print(f"Start time: {str(time.time())}")
     print("sync sent")
     # print(f"moving to {POS}\n")
     
@@ -69,6 +67,17 @@ def speed(id, speed):
 
     time.sleep(0.1)
 
+def accel(id, accel):
+    CAN_ID = (int(id) + 756)
+    ACCEL = float(accel)
+    byte_arr = bytearray(struct.pack("f", float(accel)))
+    can_msg = can.Message(arbitration_id     = CAN_ID,
+                            data             = [0xF7, 0x01, 0X00, 0x00, byte_arr[0], byte_arr[1], byte_arr[2], byte_arr[3]],
+                            is_extended_id   = False)
+    bus.send(can_msg)
+    # bus.send(can_msg)
+
+    time.sleep(0.1)
 def open_gates():
     # opening all the gates
     moveto(1,130)
@@ -168,19 +177,85 @@ def transport():
 # ///////////////////////////////////////////////////////////////////////
 
 def main():
-    # SEQUENCE
+    # i = 14
+    # home(i)
+    # accel(i, 10000)
+    # # speed(i, 50)
+    # for j in range (650, 1000000, 10):
+    #     print("current acc.: ", j)
+    #     speed(i, j)
+    #     time.sleep(0.1)
+        
+    #     moveto(i, 150)
+    #     sync(i)
+    #     moveto(i, 60)
+    #     sync(i)
 
-    while(1):
+    accel(11, 100)
+    accel(12, 3000)
+    accel(13, 3000)
+    accel(14, 10000)
+    accel(15, 10000)
+    # time.sleep(0.2)
 
-        home_all()
-        z = input()
-        position_hanger1()
-        y = input()
-        teardown()
-        x = input()
-        transport()
+    speed(11, 60)
+    speed(12, 80)
+    speed(13, 150)
+    speed(14, 800)
+    speed(15, 700)
+    time.sleep(0.2)
 
-        break
+    home(11)
+    home(12)
+    home(13)
+    home(14)
+    home(15)
+    input()
+
+# ready for pickup
+    print("ready for pickup.")
+    moveto(11,130)
+    moveto(12,60)
+    moveto(13,30)
+    moveto(15,60)
+    sync(11)
+
+# dip 1
+    input()
+    speed(12, 25)
+    print("dip")
+    moveto(12, 40)
+    moveto(11, 170)
+    sync(12)
+
+# # pick 1
+#     input()
+#     speed(12, 60)
+#     speed(13, 15)
+#     accel(13, 10000)
+#     print("pick")
+    
+#     moveto(11, 150)
+#     moveto(12, 20)
+#     moveto(13, 20)
+#     sync(12)
+
+# # pull-out 1
+
+#     moveto(11,110)
+#     moveto(12,35)
+#     sync(11)
+    
+
+    # for i in range(2000, 100000, 5000):
+    #     accel(5, i)
+    #     print(f"{i}\n")
+        
+    #     moveto(5, 130)
+    #     sync(5)
+    #     print(f"End time: {str(time.time())}")
+    #     moveto(5, 90)
+    #     sync(5)        
 
 
 if __name__ == "__main__":

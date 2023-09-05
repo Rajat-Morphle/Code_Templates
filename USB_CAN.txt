@@ -1,0 +1,21 @@
+download klipper github repo.
+open a terminal and cd into the klipper folder.
+run: make menuconfig
+change the settings
+save and exit.
+sudo make.
+
+put the RP2040 in boot mode.
+
+cd klipper/
+
+make flash FLASH_DEVICE=2e8a:0003
+ 
+To initialise the can0 channel
+sudo ip link set can0 up type can bitrate 1000000
+
+In one window run the candump utility to show all packets read by the interface.
+candump -t z -Ddex can0,#FFFFFFFF
+
+In another window, send packets on the CAN bus.
+cansend can0 123#121212121212
